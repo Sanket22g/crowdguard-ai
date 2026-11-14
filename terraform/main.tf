@@ -949,11 +949,7 @@ output "db_endpoint" {
 
 # ─── GitHub Actions OIDC Integration ─────────────────────────────────────────
 
-resource "aws_iam_openid_connect_provider" "github" {
-  url             = "https://token.actions.githubusercontent.com"
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1", "1c5878692eee74e637b5ff8e1e1279ba735d75d4"]
-}
+data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "github_actions" {
   name = "${var.project}-github-actions-role"
@@ -963,7 +959,7 @@ resource "aws_iam_role" "github_actions" {
     Statement = [{
       Effect = "Allow"
       Principal = {
-        Federated = aws_iam_openid_connect_provider.github.arn
+        Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
       }
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
