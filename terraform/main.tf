@@ -34,10 +34,12 @@ variable "project" {
 
 variable "app_image" {
   description = "ECR image URI for the main app"
+  default     = "placeholder"
 }
 
 variable "pyrit_image" {
   description = "ECR image URI for the PyRIT dashboard"
+  default     = "placeholder"
 }
 
 variable "tensorzero_image" {
