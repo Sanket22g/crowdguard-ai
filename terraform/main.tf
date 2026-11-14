@@ -1007,8 +1007,7 @@ resource "aws_iam_role_policy" "github_actions" {
           "ecs:UpdateService",
           "ecs:CreateService",
           "ecs:DescribeTaskDefinition",
-          "ecs:RegisterTaskDefinition",
-          "ecs:WaitServicesStable"
+          "ecs:RegisterTaskDefinition"
         ]
         Resource = "*"
       },
