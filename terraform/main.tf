@@ -778,11 +778,12 @@ resource "aws_ecs_task_definition" "pyrit" {
 # ─── ECS Services ─────────────────────────────────────────────────────────────
 
 resource "aws_ecs_service" "app" {
-  name            = "${var.project}-app"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.app.arn
-  desired_count   = var.app_desired_count
-  launch_type     = "FARGATE"
+  name                              = "${var.project}-app"
+  cluster                           = aws_ecs_cluster.main.id
+  task_definition                   = aws_ecs_task_definition.app.arn
+  desired_count                     = var.app_desired_count
+  launch_type                       = "FARGATE"
+  health_check_grace_period_seconds = 120
   network_configuration {
     subnets          = aws_subnet.public[*].id
     security_groups  = [aws_security_group.ecs_tasks.id]
@@ -799,11 +800,12 @@ resource "aws_ecs_service" "app" {
 }
 
 resource "aws_ecs_service" "pyrit" {
-  name            = "${var.project}-pyrit"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.pyrit.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
+  name                              = "${var.project}-pyrit"
+  cluster                           = aws_ecs_cluster.main.id
+  task_definition                   = aws_ecs_task_definition.pyrit.arn
+  desired_count                     = 1
+  launch_type                       = "FARGATE"
+  health_check_grace_period_seconds = 120
   network_configuration {
     subnets          = aws_subnet.public[*].id
     security_groups  = [aws_security_group.ecs_tasks.id]

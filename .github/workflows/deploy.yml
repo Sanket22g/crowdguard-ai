@@ -105,6 +105,7 @@ jobs:
               --cluster crowdguard-cluster \
               --service crowdguard-app \
               --task-definition $NEW_ARN \
+              --health-check-grace-period-seconds 120 \
               --region $AWS_REGION
           else
             echo "Service not active, creating from scratch..."
@@ -114,6 +115,7 @@ jobs:
               --task-definition $NEW_ARN \
               --desired-count 1 \
               --launch-type FARGATE \
+              --health-check-grace-period-seconds 120 \
               --network-configuration "awsvpcConfiguration={subnets=[$PUBLIC_SUBNETS],securityGroups=[$ECS_SG],assignPublicIp=ENABLED}" \
               --load-balancers "targetGroupArn=$APP_TG,containerName=app,containerPort=8000" \
               --region $AWS_REGION
@@ -157,6 +159,7 @@ jobs:
               --cluster crowdguard-cluster \
               --service crowdguard-pyrit \
               --task-definition $NEW_ARN \
+              --health-check-grace-period-seconds 120 \
               --region $AWS_REGION
           else
             echo "Service not active, creating from scratch..."
@@ -166,6 +169,7 @@ jobs:
               --task-definition $NEW_ARN \
               --desired-count 1 \
               --launch-type FARGATE \
+              --health-check-grace-period-seconds 120 \
               --network-configuration "awsvpcConfiguration={subnets=[$PUBLIC_SUBNETS],securityGroups=[$ECS_SG],assignPublicIp=ENABLED}" \
               --load-balancers "targetGroupArn=$PYRIT_TG,containerName=pyrit,containerPort=8001" \
               --region $AWS_REGION

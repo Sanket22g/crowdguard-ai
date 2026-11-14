@@ -129,15 +129,35 @@ async def _process_job(data: dict, msg_id: str):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global redis_client, graph
-    redis_client = await aioredis.from_url(config.redis_url, decode_responses=True)
-    await init_pool(config)
-    await db_migrate(config)
-    graph = build_graph(config)
+    try:
+        redis_client = await aioredis.from_url(config.redis_url, decode_responses=True)
+    except Exception as e:
+        logger.error(f"Failed to connect to Redis during startup: {e}")
+
+    try:
+        await init_pool(config)
+        await db_migrate(config)
+    except Exception as e:
+        logger.error(f"Failed to connect to Postgres during startup: {e}")
+
+    try:
+        graph = build_graph(config)
+    except Exception as e:
+        logger.error(f"Failed to build graph: {e}")
+
     app.state.config = config
-    asyncio.create_task(_worker_loop())
+    if redis_client:
+        asyncio.create_task(_worker_loop())
     yield
-    await redis_client.aclose()
-    await close_pool()
+    if redis_client:
+        try:
+            await redis_client.aclose()
+        except Exception:
+            pass
+    try:
+        await close_pool()
+    except Exception:
+        pass
 
 
 app = FastAPI(title="CrowdGuard: Autonomous CSR & NGO Vetting Agent", lifespan=lifespan)
@@ -168,11 +188,13 @@ async def frontend():
 
 @app.get("/health")
 async def health():
-    try:
-        await redis_client.ping()
-        redis_ok = True
-    except Exception:
-        redis_ok = False
+    redis_ok = False
+    if redis_client:
+        try:
+            await redis_client.ping()
+            redis_ok = True
+        except Exception:
+            redis_ok = False
     return {
         "status": "ok" if redis_ok else "degraded",
         "redis": "ok" if redis_ok else "error",
